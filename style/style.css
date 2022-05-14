@@ -1,7 +1,7 @@
 body {
     display: flex;
-    flex-direction: row;
     align-items: center;
     align-content:center;
-    
+    background-color: #d8ccf5;
+    justify-content: space-between;
 }
