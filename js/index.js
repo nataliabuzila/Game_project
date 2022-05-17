@@ -1,17 +1,19 @@
 
     const game = {
+        frames: 0,
+        score: 0,
         start: function () {
             this.canvas = document.getElementById("canvas");
             this.ctx    = this.canvas.getContext("2d");
             
             const imageBackground = new Image();
             const imageGirl = new Image();
-            const imageDiscoBall = new Image ();
-            const imageDiscoHeart = new Image ();
+            this.imageDiscoBall = new Image ();
+            this.imageDiscoHeart = new Image ();
             imageBackground.src = '/Images/background.png';
-            imageGirl.src = '/Images/girl.png'
-            imageDiscoBall.scr = '/Images/ball.png'
-            imageDiscoHeart.src = '/Images/heart.png';
+            imageGirl.src = '/Images/girl.png';
+            this.imageDiscoBall.src = '/Images/ball.png';
+            this.imageDiscoHeart.src = '/Images/heart.png';
             
             // const imageBoy = new Image();
             // imageBoy.src = '/Images/boy.png';
@@ -19,16 +21,23 @@
                 this.background = new Background(imageBackground);
                 imageGirl.onload = () => {
                     this.dancer = new Dancer(imageGirl);
-                    this.background.update();
-                    this.dancer.update();
-                    
-                    
-
-                    this.interval = setInterval(updateGame,20);
+                    this.imageDiscoBall.onload = () => {
+                        this.discoBall = new DiscoBall (this.imageDiscoBall);
+                        this.imageDiscoHeart.onload = () => {
+                            this.discoHeart = new DiscoHeart (this.imageDiscoHeart);
+                            this.background.update();
+                            this.dancer.update();
+                            this.discoBall.update();
+                            this.discoHeart.update();
+                            this.interval = setInterval(updateGame,20);                  
+                    }
                 }
+                
+
             }
-        },
-        clear: function() {
+        }
+    },
+        clear: function () {
             this.ctx.clearRect (0, 0, this.canvas.width, this.canvas.height);
         },
     }
@@ -110,7 +119,7 @@ class Background extends Component {
 
 class Dancer extends Component{
     constructor(image) {
-        super(450, 580, 100, 100);
+        super(450, 550, 150, 150);
         this.image = image;
     }
 
@@ -133,11 +142,12 @@ class Dancer extends Component{
                             default:
                                 break;
                         }
-                    }
-                    document.onkeyup = () => {
-                        this.speedX = 0;
-                        this.speedY = 0;
-                    }
+        }
+
+        document.onkeyup = () => {
+            this.speedX = 0;
+            this.speedY = 0;
+        }
 
         game.ctx.drawImage(this.image, this.posX, this.posY, this.width, this.height)
     }
@@ -157,13 +167,14 @@ class Dancer extends Component{
 
 class DiscoBall extends Component {
     constructor (image) {
-        const xPos = Math.floor (Math.random() * game.canvas.width);
-        const height = 50;
-        const width = 50;
-        const yPos = 0;
-
+        const posX = Math.floor (Math.random() * game.canvas.width);
+        const height = 80;
+        const width = 80;
+        const posY = -height;
+        
         super(posX, posY, width, height);
         this.image = image;
+        this.speedY = 1;
     }
 
         update () {
@@ -172,10 +183,44 @@ class DiscoBall extends Component {
         }
 }
 
+class DiscoHeart extends DiscoBall {
+    constructor (image) {
+        const posX = Math.floor (Math.random() * game.canvas.width);
+        const height = 30;
+        const width = 30;
+        const posY = -height;
+        
+        super(posX, posY, width, height);
+        this.image = image;
+        this.speedY = 1;
+    }
+
+        update () {
+            this.move();
+            game.ctx.drawImage(this.image, this.posX, this.posY, this.width, this.height)
+        }
+}
+
+const obstacles =[];
+
 function updateGame () {
     game.clear();
     game.background.update();
     game.dancer.update();
+    game.discoBall.update();
+    game.discoHeart.update();
+    if(game.frames%120 === 0) {
+        obstacles.push(new DiscoBall(game.imageDiscoBall))
+    }
+    if(game.frames%540 === 0) {
+        obstacles.push(new DiscoHeart(game.imageDiscoHeart))
+    }
+    obstacles.forEach((element) => {
+        element.update();
+    })
+    game.frames += 1;
+    game.ctx.fillText('Score: ${game.score}', 100, 100);
+    game.score +=10;
 }
 
 
