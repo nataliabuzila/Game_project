@@ -1,7 +1,6 @@
 
     const game = {
         frames: 0,
-        score: 0,
         start: function () {
             this.canvas = document.getElementById("canvas");
             this.ctx    = this.canvas.getContext("2d");
@@ -29,7 +28,7 @@
                             this.dancer.update();
                             this.discoBall.update();
                             this.discoHeart.update();
-                            this.interval = setInterval(updateGame,20);                  
+                            updateGame();             
                     }
                 }
                 
@@ -40,6 +39,20 @@
         clear: function () {
             this.ctx.clearRect (0, 0, this.canvas.width, this.canvas.height);
         },
+
+        score: function () {
+            this.points = Math.floor(this.frames / 5);
+            this.ctx.fillStyle = 'lightblue';
+            this.ctx.font = '38px serif';
+            this.ctx.fillText(`Score: ${this.points}`, 50, 50);
+        },
+
+        numberOfLives: function () {
+            this.lives = 3;
+            this.ctx.fillStyle = 'red';
+            this.ctx.font = '38px serif';
+            this.ctx.fillText(`Score: ${this.lives}`, 60, 60);
+        }
     }
 
 window.onload = () => {
@@ -60,6 +73,15 @@ class Component {
         this.height = height;
         this.speedX = 0;
         this.speedY = 0;
+    }
+
+    update() {}
+
+    move() {
+        this.setX (this.getX()+this.getSpeedX());
+        this.setY (this.getY()+this.getSpeedY());
+        // this.posX +=this.speedX;
+        // this.posY +=this.speedY;
     }
 
     getX () {
@@ -94,14 +116,24 @@ class Component {
         this.speedY = newSpeedY;
     }
 
+    left() {
+        return this.posX;
+    }
 
-    update() {}
+    right() {
+        return this.posX + this.width;
+    }
 
-    move() {
-        this.setX (this.getX()+this.getSpeedX());
-        this.setY (this.getY()+this.getSpeedY());
-        // this.posX +=this.speedX;
-        // this.posY +=this.speedY;
+    top() {
+        return this.posY;
+    }
+
+    bottom() {
+        return this.posY + this.height;
+    }
+     
+    crashWith(obstacle) {
+        return !(this.bottom() < obstacle.top() || this.top() > obstacle.bottom() || this.right() < obstacle.left() || this.left() > obstacle.right());
     }
 }
 
@@ -192,7 +224,7 @@ class DiscoHeart extends DiscoBall {
         
         super(posX, posY, width, height);
         this.image = image;
-        this.speedY = 1;
+        this.speedY = 2;
     }
 
         update () {
@@ -219,8 +251,16 @@ function updateGame () {
         element.update();
     })
     game.frames += 1;
-    game.ctx.fillText('Score: ${game.score}', 100, 100);
-    game.score +=10;
+    game.score();
+    let gameOver = obstacles.some((element) => {
+        return game.dancer.crashWith(element);
+    })
+    if(!gameOver){
+        requestAnimationFrame(updateGame);
+    } else {
+        alert(`Game over! You won ${game.points} points!`);
+    }
+    
 }
 
 
