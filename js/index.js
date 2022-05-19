@@ -1,6 +1,7 @@
 
     const game = {
         frames: 0,
+        ballFallSpeed: 1,
         start: function () {
             this.canvas = document.getElementById("canvas");
             this.ctx    = this.canvas.getContext("2d");
@@ -42,27 +43,29 @@
 
         score: function () {
             this.points = Math.floor(this.frames / 5);
-            this.ctx.fillStyle = 'lightblue';
-            this.ctx.font = '38px serif';
+            this.ctx.fillStyle = 'blue';
+            this.ctx.font = '28px serif';
             this.ctx.fillText(`Score: ${this.points}`, 50, 50);
         },
 
-        numberOfLives: function () {
-            this.lives = 3;
+        nrOfLives: 3,
+
+        lives: function () {
             this.ctx.fillStyle = 'red';
-            this.ctx.font = '38px serif';
-            this.ctx.fillText(`Score: ${this.lives}`, 60, 60);
+            this.ctx.font = '28px serif';
+            this.ctx.fillText(`Lives: ${game.nrOfLives}`, 50, 80);
         }
     }
 
-window.onload = () => {
+//window.onload = () => {
     document.getElementById('start-button').onclick = () => {
         startGame();
     }
+//}
 
-    function startGame() {
-        game.start();
-    }
+function startGame() {
+    console.log('hello')
+    game.start();
 }
 
 class Component {
@@ -135,6 +138,7 @@ class Component {
     crashWith(obstacle) {
         return !(this.bottom() < obstacle.top() || this.top() > obstacle.bottom() || this.right() < obstacle.left() || this.left() > obstacle.right());
     }
+
 }
 
 
@@ -198,7 +202,7 @@ class Dancer extends Component{
 }
 
 class DiscoBall extends Component {
-    constructor (image) {
+    constructor (image, speed) {
         const posX = Math.floor (Math.random() * game.canvas.width);
         const height = 80;
         const width = 80;
@@ -206,7 +210,7 @@ class DiscoBall extends Component {
         
         super(posX, posY, width, height);
         this.image = image;
-        this.speedY = 1;
+        this.speedY = speed;
     }
 
         update () {
@@ -215,11 +219,11 @@ class DiscoBall extends Component {
         }
 }
 
-class DiscoHeart extends DiscoBall {
+class DiscoHeart extends Component {
     constructor (image) {
         const posX = Math.floor (Math.random() * game.canvas.width);
-        const height = 30;
-        const width = 30;
+        const height = 40;
+        const width = 40;
         const posY = -height;
         
         super(posX, posY, width, height);
@@ -233,7 +237,8 @@ class DiscoHeart extends DiscoBall {
         }
 }
 
-const obstacles =[];
+const obstaclesBall =[];
+const arrayHeart =[];
 
 function updateGame () {
     game.clear();
@@ -241,26 +246,61 @@ function updateGame () {
     game.dancer.update();
     game.discoBall.update();
     game.discoHeart.update();
+
     if(game.frames%120 === 0) {
-        obstacles.push(new DiscoBall(game.imageDiscoBall))
+        obstaclesBall.push(new DiscoBall(game.imageDiscoBall, game.ballFallSpeed))
     }
+
+    if(game.frames%500 === 0) {
+        game.ballFallSpeed++;
+    }
+
     if(game.frames%540 === 0) {
-        obstacles.push(new DiscoHeart(game.imageDiscoHeart))
+        arrayHeart.push(new DiscoHeart(game.imageDiscoHeart))
     }
-    obstacles.forEach((element) => {
+    obstaclesBall.forEach((element) => {
+        element.update();
+    })
+    arrayHeart.forEach((element) => {
         element.update();
     })
     game.frames += 1;
-    game.score();
-    let gameOver = obstacles.some((element) => {
-        return game.dancer.crashWith(element);
+    
+    let crashHeart = arrayHeart.some((element) => {
+        let collision = game.dancer.crashWith(element);
+        if(collision) {
+            arrayHeart.splice(arrayHeart.indexOf(element), 1)
+        }
+        return collision;
     })
-    if(!gameOver){
-        requestAnimationFrame(updateGame);
-    } else {
-        alert(`Game over! You won ${game.points} points!`);
+
+    let crashBall = obstaclesBall.some((element) => {
+        let collision = game.dancer.crashWith(element);
+        if(collision) {
+            obstaclesBall.splice(obstaclesBall.indexOf(element), 1)
+        }
+        return collision;
+    })
+
+
+
+    if(crashHeart) {
+        game.nrOfLives +=1;
+    }
+
+    if (crashBall) {
+        game.nrOfLives -=1;
     }
     
+    
+
+    if(game.nrOfLives>0) requestAnimationFrame(updateGame);
+    else alert(`Game over! You won ${game.points} points!`);
+
+    game.lives();
+    game.score();
+    
+      
 }
 
 
