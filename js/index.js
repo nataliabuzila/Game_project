@@ -15,11 +15,16 @@
             this.imageDiscoBall.src = '/Images/ball.png';
             this.imageDiscoHeart.src = '/Images/heart.png';
             
-            // const imageBoy = new Image();
-            // imageBoy.src = '/Images/boy.png';
+            let music = new Audio();
+            music.src = '/sounds/SilentCircleTouchInNight.mp3'
+
+            
+
             imageBackground.onload = () => {
+                
                 this.background = new Background(imageBackground);
                 imageGirl.onload = () => {
+                    music.play();
                     this.dancer = new Dancer(imageGirl);
                     this.imageDiscoBall.onload = () => {
                         this.discoBall = new DiscoBall (this.imageDiscoBall);
@@ -32,8 +37,6 @@
                             updateGame();             
                     }
                 }
-                
-
             }
         }
     },
@@ -43,7 +46,7 @@
 
         score: function () {
             this.points = Math.floor(this.frames / 5);
-            this.ctx.fillStyle = 'blue';
+            this.ctx.fillStyle = 'DeepSkyBlue';
             this.ctx.font = '28px serif';
             this.ctx.fillText(`Score: ${this.points}`, 50, 50);
         },
@@ -57,14 +60,16 @@
         }
     }
 
-//window.onload = () => {
+window.onload = () => {
+    startGame();
     document.getElementById('start-button').onclick = () => {
+        //console.log('hey')
         startGame();
     }
-//}
+}
 
 function startGame() {
-    console.log('hello')
+    //console.log('hello')
     game.start();
 }
 
@@ -155,7 +160,7 @@ class Background extends Component {
 
 class Dancer extends Component{
     constructor(image) {
-        super(450, 550, 150, 150);
+        super(450, 550, 130, 150);
         this.image = image;
     }
 
@@ -165,6 +170,9 @@ class Dancer extends Component{
                         switch(e.key){
                             case "ArrowLeft":
                                 this.setSpeedX(this.getSpeedX()-2);
+                                // Flips the dancer image on top of previous dancer Image
+                                // game.ctx.scale(-1,1);
+                                // game.ctx.drawImage(this.image, -this.posX-this.width, this.posY, this.width, this.height);
                                 break;
                             case "ArrowRight":
                                 this.setSpeedX(this.getSpeedX()+2);
@@ -186,6 +194,7 @@ class Dancer extends Component{
         }
 
         game.ctx.drawImage(this.image, this.posX, this.posY, this.width, this.height)
+
     }
 
     setX (newX) {
@@ -197,7 +206,6 @@ class Dancer extends Component{
         if(newY >=0 && newY <=game.canvas.height-this.height)
         this.posY = newY;
     }
-
 
 }
 
@@ -247,6 +255,8 @@ function updateGame () {
     game.discoBall.update();
     game.discoHeart.update();
 
+
+
     if(game.frames%120 === 0) {
         obstaclesBall.push(new DiscoBall(game.imageDiscoBall, game.ballFallSpeed))
     }
@@ -283,7 +293,6 @@ function updateGame () {
     })
 
 
-
     if(crashHeart) {
         game.nrOfLives +=1;
     }
@@ -292,14 +301,11 @@ function updateGame () {
         game.nrOfLives -=1;
     }
     
-    
-
     if(game.nrOfLives>0) requestAnimationFrame(updateGame);
     else alert(`Game over! You won ${game.points} points!`);
 
     game.lives();
     game.score();
-    
       
 }
 
