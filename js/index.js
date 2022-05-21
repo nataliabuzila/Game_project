@@ -10,13 +10,13 @@
             const imageGirl = new Image();
             this.imageDiscoBall = new Image ();
             this.imageDiscoHeart = new Image ();
-            imageBackground.src = '/Images/background.png';
-            imageGirl.src = '/Images/girl.png';
-            this.imageDiscoBall.src = '/Images/ball.png';
-            this.imageDiscoHeart.src = '/Images/heart.png';
+            imageBackground.src = './Images/background.png';
+            imageGirl.src = './Images/girl.png';
+            this.imageDiscoBall.src = './Images/ball.png';
+            this.imageDiscoHeart.src = './Images/heart.png';
             
             let music = new Audio();
-            music.src = '/sounds/SilentCircleTouchInNight.mp3'
+            music.src = './sounds/SilentCircleTouchInNight.mp3'
 
             
 
@@ -171,8 +171,10 @@ class Dancer extends Component{
                             case "ArrowLeft":
                                 this.setSpeedX(this.getSpeedX()-2);
                                 // Flips the dancer image on top of previous dancer Image
+                                // game.ctx.save();
                                 // game.ctx.scale(-1,1);
                                 // game.ctx.drawImage(this.image, -this.posX-this.width, this.posY, this.width, this.height);
+                                // game.ctx.restore();
                                 break;
                             case "ArrowRight":
                                 this.setSpeedX(this.getSpeedX()+2);
